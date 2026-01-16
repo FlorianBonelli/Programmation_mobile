@@ -9,7 +9,8 @@ environment:
 # Add regular dependencies here.
 dependencies:
   path: ^1.9.0
+  
 
 dev_dependencies:
-  lints: ^6.0.0
-  test: ^1.25.6
+  openfoodfacts_flutter_lints:
+    git: https://github.com/g123k/openfoodfacts_flutter_lints.git
