@@ -3,7 +3,7 @@ String foo({
   int number = 0,
   bool toUpperCase = false,
 }) =>
-    '${(toUpperCase ? name.toUpperCase() : name)} $number';
+    '${toUpperCase ? name.toUpperCase() : name} $number';
 
 void useFoo() {
   print(foo(name: 'a'));
