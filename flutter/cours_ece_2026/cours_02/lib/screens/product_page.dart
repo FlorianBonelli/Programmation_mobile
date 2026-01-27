@@ -3,43 +3,77 @@ import 'package:formation_flutter/model/product.dart';
 import 'package:formation_flutter/res/app_colors.dart';
 import 'package:formation_flutter/res/app_icons.dart';
 import 'package:formation_flutter/res/app_images.dart';
+import 'package:provider/provider.dart';
+import 'package:dio/dio.dart';
+import 'package:formation_flutter/api/product_api.dart';
 
 class ProductPage extends StatelessWidget {
   const ProductPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final Product product = generateProduct();
+    return ChangeNotifierProvider(
+      create: (_) => ProductModel(),
+      child: Scaffold(
+        body: Consumer<ProductModel>(
+          builder: (context, model, child) {
+            final product = model.product;
 
-    return Scaffold(
-      body: Stack(
-        children: [
-          PositionedDirectional(
-            top: 0.0,
-            start: 0.0,
-            end: 0.0,
-            height: 300.0,
-            child: _ProductPicture(picture: product.picture),
-          ),
-          Positioned.fill(top: 280, child: _ProductDetails(product: product)),
-        ],
+            if (product == null) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(height: 300, child: _ProductPicture()),
+                  Transform.translate(
+                    offset: const Offset(0, -20),
+                    child: const _ProductDetails(),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
 }
 
-class _ProductPicture extends StatelessWidget {
-  final String? picture;
+class ProductModel extends ChangeNotifier {
+  Product? _product;
 
-  const _ProductPicture({this.picture});
+  Product? get product => _product;
+
+  ProductModel() {
+    loadProduct();
+  }
+
+  Future<void> loadProduct() async {
+    final dio = Dio();
+    final client = ProductRestClient(dio);
+    try {
+      final result = await client.getProduct('5000159484695');
+      _product = result.response?.toProduct();
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error loading product: $e');
+    }
+  }
+}
+
+class _ProductPicture extends StatelessWidget {
+  const _ProductPicture();
 
   @override
   Widget build(BuildContext context) {
+    final Product product = context.read<ProductModel>().product!;
     return Stack(
       children: [
         Positioned.fill(
-          child: picture != null
-              ? Image.network(picture!, fit: BoxFit.cover)
+          child: product.picture != null
+              ? Image.network(product.picture!, fit: BoxFit.cover)
               : Container(color: AppColors.grey1),
         ),
         SafeArea(
@@ -66,12 +100,11 @@ class _ProductPicture extends StatelessWidget {
 }
 
 class _ProductDetails extends StatelessWidget {
-  final Product product;
-
-  const _ProductDetails({required this.product});
+  const _ProductDetails();
 
   @override
   Widget build(BuildContext context) {
+    final Product product = context.read<ProductModel>().product!;
     return Container(
       decoration: const BoxDecoration(
         color: AppColors.white,
@@ -80,49 +113,47 @@ class _ProductDetails extends StatelessWidget {
           topRight: Radius.circular(16),
         ),
       ),
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.only(
-            top: 30,
-            left: 20,
-            right: 20,
-            bottom: 20,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+      child: Padding(
+        padding: const EdgeInsets.only(
+          top: 30,
+          left: 20,
+          right: 20,
+          bottom: 20,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              product.name ?? '',
+              style: const TextStyle(
+                color: AppColors.blue,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              product.brands?.join(', ') ?? '',
+              style: const TextStyle(color: AppColors.grey2, fontSize: 16),
+            ),
+            const SizedBox(height: 20),
+            if (product.altName != null) ...[
               Text(
-                product.name ?? '',
+                product.altName!,
                 style: const TextStyle(
-                  color: AppColors.blue,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+                  color: AppColors.grey3,
+                  fontSize: 14,
+                  fontStyle: FontStyle.italic,
                 ),
               ),
-              const SizedBox(height: 4),
-              Text(
-                product.brands?.join(', ') ?? '',
-                style: const TextStyle(color: AppColors.grey2, fontSize: 16),
-              ),
               const SizedBox(height: 20),
-              if (product.altName != null) ...[
-                Text(
-                  product.altName!,
-                  style: const TextStyle(
-                    color: AppColors.grey3,
-                    fontSize: 14,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-                const SizedBox(height: 20),
-              ],
-              _ProductScoreBanner(product: product),
-              const SizedBox(height: 20),
-              _ProductData(product: product),
-              const SizedBox(height: 20),
-              const _ProductButtons(),
             ],
-          ),
+            _ProductScoreBanner(),
+            const SizedBox(height: 20),
+            _ProductData(),
+            const SizedBox(height: 20),
+            const _ProductButtons(),
+          ],
         ),
       ),
     );
@@ -130,9 +161,7 @@ class _ProductDetails extends StatelessWidget {
 }
 
 class _ProductScoreBanner extends StatelessWidget {
-  final Product product;
-
-  const _ProductScoreBanner({required this.product});
+  const _ProductScoreBanner();
 
   @override
   Widget build(BuildContext context) {
@@ -146,20 +175,14 @@ class _ProductScoreBanner extends StatelessWidget {
           IntrinsicHeight(
             child: Row(
               children: [
-                Expanded(
-                  flex: 44,
-                  child: NutriScoreWidget(score: product.nutriScore),
-                ),
+                const Expanded(flex: 44, child: NutriScoreWidget()),
                 const AppDivider(axis: Axis.vertical),
-                Expanded(
-                  flex: 100 - 44,
-                  child: NovaScoreWidget(score: product.novaScore),
-                ),
+                const Expanded(flex: 100 - 44, child: NovaScoreWidget()),
               ],
             ),
           ),
           const AppDivider(axis: Axis.horizontal),
-          GreenScoreWidget(score: product.greenScore),
+          const GreenScoreWidget(),
         ],
       ),
     );
@@ -167,12 +190,12 @@ class _ProductScoreBanner extends StatelessWidget {
 }
 
 class NutriScoreWidget extends StatelessWidget {
-  final ProductNutriScore? score;
-
-  const NutriScoreWidget({super.key, this.score});
+  const NutriScoreWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final Product product = context.read<ProductModel>().product!;
+    final ProductNutriScore? score = product.nutriScore;
     String asset;
     switch (score) {
       case ProductNutriScore.A:
@@ -216,12 +239,12 @@ class NutriScoreWidget extends StatelessWidget {
 }
 
 class NovaScoreWidget extends StatelessWidget {
-  final ProductNovaScore? score;
-
-  const NovaScoreWidget({super.key, this.score});
+  const NovaScoreWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final Product product = context.read<ProductModel>().product!;
+    final ProductNovaScore? score = product.novaScore;
     String text;
     switch (score) {
       case ProductNovaScore.group1:
@@ -265,12 +288,12 @@ class NovaScoreWidget extends StatelessWidget {
 }
 
 class GreenScoreWidget extends StatelessWidget {
-  final ProductGreenScore? score;
-
-  const GreenScoreWidget({super.key, this.score});
+  const GreenScoreWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final Product product = context.read<ProductModel>().product!;
+    final ProductGreenScore? score = product.greenScore;
     IconData icon;
     String text;
     Color color;
@@ -362,14 +385,12 @@ class AppDivider extends StatelessWidget {
   }
 }
 
-/// Faire ici Quantité & Vendu
 class _ProductData extends StatelessWidget {
-  final Product product;
-
-  const _ProductData({super.key, required this.product});
+  const _ProductData({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final Product product = context.read<ProductModel>().product!;
     return Column(
       children: [
         ProductInfoRow(label: 'Quantité', value: product.quantity ?? ''),
@@ -428,7 +449,6 @@ class ProductInfoRow extends StatelessWidget {
   }
 }
 
-/// Faire ici boutons Végétalien & Végétarien
 class _ProductButtons extends StatelessWidget {
   const _ProductButtons();
 

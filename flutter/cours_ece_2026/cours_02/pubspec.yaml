@@ -17,12 +17,19 @@ dependencies:
 
   # UI
   flutter_svg: 2.2.3
+  provider: ^6.1.5+1
+  dio: ^5.9.1
+  retrofit: ^4.9.2
+  json_annotation: ^4.9.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   flutter_lints: ^6.0.0
+  retrofit_generator: ^10.2.1
+  json_serializable: ^6.11.4
+  build_runner: ^2.10.5
 
 flutter:
 
