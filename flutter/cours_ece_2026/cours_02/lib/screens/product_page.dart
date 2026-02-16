@@ -386,7 +386,7 @@ class AppDivider extends StatelessWidget {
 }
 
 class _ProductData extends StatelessWidget {
-  const _ProductData({super.key});
+  const _ProductData();
 
   @override
   Widget build(BuildContext context) {

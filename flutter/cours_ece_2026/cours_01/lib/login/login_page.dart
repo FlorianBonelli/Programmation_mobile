@@ -38,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
                 },
               ),
               ContinueButton(onPressed: _email.isNotEmpty ? () {} : null),
-              OrDivider(),
+              const OrDivider(),
               ContinueWithButton(
                 label: 'Continue with Apple',
                 asset: 'assets/apple_logo.svg',
@@ -72,18 +72,18 @@ class EmailAddress extends StatelessWidget {
     return TextField(
       autofocus: false,
       onChanged: valueChanged,
-      style: TextStyle(color: AppColors.textPrimary),
+      style: const TextStyle(color: AppColors.textPrimary),
       decoration: InputDecoration(
         prefixIcon: const Icon(Icons.email_outlined),
         hintText: 'Email Address',
-        hintStyle: TextStyle(color: AppColors.textSecondary),
+        hintStyle: const TextStyle(color: AppColors.textSecondary),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
-          borderSide: BorderSide(color: AppColors.inputFieldActiveBackground),
+          borderSide: const BorderSide(color: AppColors.inputFieldActiveBackground),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
-          borderSide: BorderSide(color: AppColors.inputFieldInactiveBackground),
+          borderSide: const BorderSide(color: AppColors.inputFieldInactiveBackground),
         ),
       ),
     );
@@ -106,7 +106,7 @@ class ContinueButton extends StatelessWidget {
         ),
       ),
       onPressed: onPressed,
-      child: Text('Continue', style: TextStyle(fontWeight: FontWeight.bold)),
+      child: const Text('Continue', style: TextStyle(fontWeight: FontWeight.bold)),
     );
   }
 }
@@ -116,8 +116,8 @@ class OrDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: <Widget>const [
+    return const Row(
+      children: <Widget><Widget>[
         Expanded(child: Divider()),
         Text('Or', style: TextStyle(color: AppColors.textSecondary)),
         Expanded(child: Divider()),
@@ -146,7 +146,7 @@ class ContinueWithButton extends StatelessWidget {
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0),
-          side: BorderSide(color: AppColors.buttonSecondaryBackground),
+          side: const BorderSide(color: AppColors.buttonSecondaryBackground),
         ),
       ),
       onPressed: onPressed,

@@ -5,13 +5,14 @@ import 'package:formation_flutter/model/product.dart';
 
 part 'product_api.g.dart';
 
-@RestApi(baseUrl: "https://api.formation-flutter.fr/v2/")
+@RestApi(baseUrl: 'https://api.formation-flutter.fr/v2/')
 abstract class ProductRestClient {
   factory ProductRestClient(Dio dio, {String baseUrl}) = _ProductRestClient;
 
-  @GET("getProduct")
-  Future<ProductAPIEntity> getProduct(@Query("barcode") String barcode);
+  @GET('getProduct')
+  Future<ProductAPIEntity> getProduct(@Query('barcode') String barcode);
 }
+
 
 @JsonSerializable()
 class ProductAPIEntity {
